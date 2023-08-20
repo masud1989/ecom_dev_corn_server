@@ -7,7 +7,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
-
+// Import Routes 
 const authRouter = require('./route/authRoutes');
 const productRouter = require('./route/productRoutes');
 const blogRouter = require('./route/blogRoutes');
@@ -20,7 +20,7 @@ const port = process.env.PORT || 4000;
 
 
 
-
+//DB Connection
 dbConnect();
 
 app.use(cookieParser());
@@ -28,7 +28,7 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
+// Apply Routes
 app.use('/api/user', authRouter);
 app.use('/api/product', productRouter);
 app.use('/api/blog', blogRouter);
