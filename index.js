@@ -17,9 +17,6 @@ const brandRouter = require('./route/brandRoutes');
 
 const port = process.env.PORT || 4000;
 
-
-
-
 //DB Connection
 dbConnect();
 
@@ -36,7 +33,7 @@ app.use('/api/productCategory', productCategoryRouter);
 app.use('/api/blogCategory', blogCategoryRouter);
 app.use('/api/brand', brandRouter);
 
-
+// Apply Error Handler  
 app.use(notFound);
 app.use(errorHandler);
 

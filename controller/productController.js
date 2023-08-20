@@ -94,8 +94,41 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
+const addToWishList = asyncHandler( async (req, res) => {
+  const {_id} = req.user
+  const {productId} = req.body
+ try {
+    const user = await User.findById(_id)
+    const alreadyAdded = user.wishList.find( (id) => id.toString() === productId)
+    if (alreadyAdded) {
+      let user = await User.findByIdAndUpdate(_id, 
+      {
+        $pull: {wishList: productId}
+      }, 
+      {
+        new: true
+      }
+      )
+      res.json(user)
+    }else{
+      let user = await User.findByIdAndUpdate(_id, 
+      {
+        $push: {wishList: productId}
+      },
+      {
+        new: true
+      } 
+      )
+      res.json(user)
+    }
+ } catch (error) {
+    throw new Error(error)
+ }
+
+});
 
 
 
 
-  module.exports = {createProduct, getProduct, getAllProducts, updateProduct, deleteProduct}
+
+  module.exports = {createProduct, getProduct, getAllProducts, updateProduct, deleteProduct, addToWishList}
