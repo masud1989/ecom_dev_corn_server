@@ -5,9 +5,10 @@ const { generateRefreshToken } = require('../config/refreshToken');
 const User = require('../model/userModel');
 const asyncHandler = require('express-async-handler');
 const sendEmail = require('../utils/sendMail');
+const { error } = require('console');
 
 // Register a user 
-const register = asyncHandler(async(req, res) => {
+const register = asyncHandler(async (req, res) => {
     const postBody = req.body
     const email = postBody.email
     const existingUser = await User.findOne({email})
@@ -22,8 +23,43 @@ const register = asyncHandler(async(req, res) => {
 }
 );
 
+// Login as Admin 
+const loginAdmin = asyncHandler(async (req, res) => {
+    const postBody = req.body
+    const {email, password} = postBody
+    // console.log(email, password)
+    const findAdmin = await User.findOne({email})
+    const matchedPassword = await findAdmin.isPasswordMatched(password)
+    if(findAdmin.role !== 'admin') throw new Error("Not Authorized User")
+    if(findAdmin && matchedPassword){
+        const refreshToken = await generateRefreshToken(findAdmin?._id)
+        const updatedUser = await User.findByIdAndUpdate(findAdmin._id,{
+            refreshToken: refreshToken,
+        }, {new:true})
+        res.cookie("refreshToken", refreshToken,{httpOnly: true, maxAge: 72 * 60 * 60 * 1000})
+        res.json({
+            _id: findAdmin?._id,
+            firstName: findAdmin?.firstName,
+            lastName: findAdmin?.lastName,
+            email: findAdmin?.email,
+            mobile: findAdmin.mobile,
+            token: generateToken(findAdmin._id)
+        });
+    }else{
+        throw new Error('Invalid Credentils..')
+    }
+    // if(!existingUser){
+    //     const newUser = await User.create(postBody)
+    //     // res.json({success: true, message: 'Registration Successful', newUser})
+    //     res.json( newUser)
+    // }else{
+    //     // res.json({success: false, message:'User already exist'})
+    //     throw new Error('User Already Exist..')
+    // }
+}
+);
 // Login a user 
-const loginUser = asyncHandler(async(req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     const postBody = req.body
     const {email, password} = postBody
     // console.log(email, password)
@@ -58,7 +94,7 @@ const loginUser = asyncHandler(async(req, res) => {
 );
 
 // handle Refresh token 
-const refreshToken = asyncHandler(async(req, res) => {
+const refreshToken = asyncHandler(async (req, res) => {
     const cookie = req.cookies;
     // console.log(cookie);
     if (!cookie?.refreshToken) throw new Error('There in no Refresh Token in Header')
@@ -76,7 +112,7 @@ const refreshToken = asyncHandler(async(req, res) => {
 });
 
 //logout
-const logout = asyncHandler(async(req, res) => {
+const logout = asyncHandler(async (req, res) => {
     const cookie = req.cookies
     if (!cookie.refreshToken) throw new Error('No Refresh Token available in Cookies')
     const refreshToken = cookie.refreshToken
@@ -92,7 +128,7 @@ const logout = asyncHandler(async(req, res) => {
 });
 
 // Get all Users 
-const getAllUsers = asyncHandler( async(req, res) => {
+const getAllUsers = asyncHandler( async (req, res) => {
     try {
         const getUsers = await User.find();
         res.json({Total:getUsers.length, users: getUsers})
@@ -102,7 +138,7 @@ const getAllUsers = asyncHandler( async(req, res) => {
 });
 
 // Get single User
-const getUser = asyncHandler( async(req, res) => {
+const getUser = asyncHandler( async (req, res) => {
     const id = req.params.id
     try {
         const getUser = await User.findById(id)
@@ -114,7 +150,7 @@ const getUser = asyncHandler( async(req, res) => {
 });
 
 // Get single User
-const deleteUser = asyncHandler( async(req, res) => {
+const deleteUser = asyncHandler( async (req, res) => {
     const id = req.params.id
     try {
         const deleteUser = await User.findByIdAndDelete(id)
@@ -126,7 +162,7 @@ const deleteUser = asyncHandler( async(req, res) => {
 });
 
 // Update User
-const updateUser = asyncHandler( async(req, res) => {
+const updateUser = asyncHandler( async (req, res) => {
     const { id } = req.user;
     console.log(req.user)
     // validateMongoDbId(_id);
@@ -151,7 +187,7 @@ const updateUser = asyncHandler( async(req, res) => {
 });
 
 // UnBlock User
-const unBlockUser = asyncHandler( async(req, res) => {
+const unBlockUser = asyncHandler( async (req, res) => {
     const {id} = req.params;
     // validateMongoDBId(id)
     let Data = {
@@ -167,7 +203,7 @@ const unBlockUser = asyncHandler( async(req, res) => {
 });
 
 // Block User
-const blockUser = asyncHandler( async(req, res) => {
+const blockUser = asyncHandler( async (req, res) => {
     const {id} = req.params;
   // validateMongoDBId(id)
   let Data = {
@@ -183,7 +219,7 @@ const blockUser = asyncHandler( async(req, res) => {
 });
 
 // Make User to Admin
-const makeAdmin = asyncHandler( async(req, res) => {
+const makeAdmin = asyncHandler( async (req, res) => {
     const {id} = req.params;
   // validateMongoDBId(id)
   let Data = {
@@ -199,7 +235,7 @@ const makeAdmin = asyncHandler( async(req, res) => {
 });
 
 // Make Admin to User
-const makeUser = asyncHandler( async(req, res) => {
+const makeUser = asyncHandler( async (req, res) => {
     const {id} = req.params;
   // validateMongoDBId(id)
   let Data = {
@@ -215,7 +251,7 @@ const makeUser = asyncHandler( async(req, res) => {
 });
 
 //Update User Password
-const updatePassword = asyncHandler( async(req, res) => {
+const updatePassword = asyncHandler( async (req, res) => {
   const id = req.user._id
   const password = req.body.password
   const user = await User.findById(id)
@@ -229,7 +265,7 @@ const updatePassword = asyncHandler( async(req, res) => {
 });
 
 //User Password Reset Link by Email
-const forgotPasswordToken = asyncHandler( async(req, res) => {
+const forgotPasswordToken = asyncHandler( async (req, res) => {
   const email = req.body.email;
   const user = await User.findOne({email})
   if(!user) throw new Error('User is not found for this Email Account')
@@ -251,7 +287,7 @@ const forgotPasswordToken = asyncHandler( async(req, res) => {
 });
 
 //Reset Usqer Password
-const resetPassword = asyncHandler( async(req, res) => {
+const resetPassword = asyncHandler( async (req, res) => {
   const password = req.body.password
   const token = req.params.token
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
@@ -269,4 +305,4 @@ const resetPassword = asyncHandler( async(req, res) => {
 
 });
 
-module.exports = {register, loginUser, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword}
+module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword}

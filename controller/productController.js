@@ -221,6 +221,6 @@ const uploadImages = asyncHandler( async(req, res) => {
   } catch (error) {
       throw new Error(error)
   }
-})
+});
 
 module.exports = {createProduct, getProduct, getAllProducts, updateProduct, deleteProduct, addToWishList, rating, uploadImages}
