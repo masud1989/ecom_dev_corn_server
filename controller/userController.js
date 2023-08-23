@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { generateToken } = require('../config/jwtToken');
 const { generateRefreshToken } = require('../config/refreshToken');
 const User = require('../model/userModel');
+const Product = require('../model/productModel');
 const asyncHandler = require('express-async-handler');
 const sendEmail = require('../utils/sendMail');
 const { error } = require('console');
@@ -305,4 +306,16 @@ const resetPassword = asyncHandler( async (req, res) => {
 
 });
 
-module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword}
+const getWishList = asyncHandler( async (req, res) => {
+  const id = req.user
+  console.log(id)
+  try {
+      const getUser = await User.findById(id).populate("wishList")
+      console.log(getUser)
+      res.json({user: getUser})
+  } catch (error) {
+      throw new Error(error)
+  }
+});
+
+module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, getWishList}

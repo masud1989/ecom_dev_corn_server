@@ -1,6 +1,8 @@
 const Brand = require('../model/brandModel');
 const asyncHandler = require('express-async-handler');
 const validateMongoDbId = require('../utils/validateMongoDBId');
+const fs = require('fs');
+const { cloudinaryUploadImage } = require('../utils/cloudinary');
 
 const createBrand = asyncHandler( async(req, res) => {
     const postBody = req.body
@@ -42,7 +44,7 @@ const getBrand = asyncHandler(async (req, res) => {
     } catch (error) {
       throw new Error(error);
     }
-  });
+});
 
   const getAllBrand = asyncHandler(async (req, res) => {
     try {
@@ -51,7 +53,39 @@ const getBrand = asyncHandler(async (req, res) => {
     } catch (error) {
       throw new Error(error);
     }
-  });
+});
+
+const uploadImages = asyncHandler( async(req, res) => {
+  // console.log(req.files)
+  const id = req.params.id;
+  try {
+      const uploader = (path) => cloudinaryUploadImage(path, "images")
+      const urls = [];
+      const files = req.files;
+      console.log(files)
+
+      for(const file of files){
+          const {path} = file;
+          const newPath = await uploader(path);
+          urls.push(newPath)
+          fs.unlinkSync(path)
+      }
+
+      const findBrand = await Brand.findByIdAndUpdate(id, {
+          images: urls.map( (file) => {
+              return file;
+          })
+      }, 
+      {
+          new: true
+      }
+      )
+  res.json(findBrand)
+
+  } catch (error) {
+      throw new Error(error)
+  }
+});
 
 
-module.exports = {createBrand, updateBrand, deleteBrand, getBrand, getAllBrand}
+module.exports = {createBrand, updateBrand, deleteBrand, getBrand, getAllBrand, uploadImages}
