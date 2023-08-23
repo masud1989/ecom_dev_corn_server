@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, loginUser, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishList } = require('../controller/userController');
+const { register, loginUser, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishList, saveAddress } = require('../controller/userController');
 const { authMiddleware, isAdmin } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -21,5 +21,6 @@ router.put('/makeUser/:id', authMiddleware, isAdmin, makeUser);
 router.get('/refreshToken', refreshToken);
 router.get('/logout', logout);
 router.get('/getWishList', authMiddleware, getWishList);
+router.post('/saveAddress', authMiddleware, saveAddress);
 
 module.exports = router;

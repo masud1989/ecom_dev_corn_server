@@ -308,7 +308,6 @@ const resetPassword = asyncHandler( async (req, res) => {
 
 const getWishList = asyncHandler( async (req, res) => {
   const id = req.user
-  console.log(id)
   try {
       const getUser = await User.findById(id).populate("wishList")
       console.log(getUser)
@@ -318,4 +317,24 @@ const getWishList = asyncHandler( async (req, res) => {
   }
 });
 
-module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, getWishList}
+const saveAddress = asyncHandler( async (req, res) => {
+  const id = req.user
+  try {
+      const updateUser = await User.findByIdAndUpdate(
+        id, 
+        {
+          address: req?.body?.address
+        }, 
+        {
+          new: true
+        }
+        )
+      res.json({message: 'Address Saved', user: updateUser})
+  } catch (error) {
+      throw new Error(error)
+  }
+});
+
+
+
+module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, getWishList, saveAddress}
