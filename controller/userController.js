@@ -5,6 +5,7 @@ const { generateRefreshToken } = require('../config/refreshToken');
 const User = require('../model/userModel');
 const Product = require('../model/productModel');
 const Cart = require('../model/cartModel');
+const Coupon = require('../model/couponModel');
 const asyncHandler = require('express-async-handler');
 const sendEmail = require('../utils/sendMail');
 const { error } = require('console');
@@ -321,6 +322,7 @@ const getWishList = asyncHandler( async (req, res) => {
 
 const saveAddress = asyncHandler( async (req, res) => {
   const id = req.user
+  console.log(id)
   try {
       const updateUser = await User.findByIdAndUpdate(
         id, 
@@ -337,7 +339,7 @@ const saveAddress = asyncHandler( async (req, res) => {
   }
 });
 
-const userCart = asyncHandler(async (req, res) => {
+const addToCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
   validateMongoDbId(_id);
@@ -373,5 +375,37 @@ const userCart = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserCart = asyncHandler(async (req, res) => {
+  const {_id} = req.user;
+  console.log(_id)
+  validateMongoDbId(_id);
+  try {
+    const cart = await Cart.findOne({ orderby: _id }).populate(
+      "products.product", "title description price category brand images color"
+    );
+    res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
-module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, getWishList, saveAddress, userCart}
+const emptyCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongoDbId(_id);
+  try {
+    const user = await User.findOne({_id})
+    const cart = await Cart.findOneAndRemove({orderby:user._id})
+    res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const applyCoupon = asyncHandler( async(req, res) => {
+  const {coupon} = req.body
+  const validCoupon = await Coupon.findOne({name: coupon})
+ 
+})
+
+
+module.exports = {register, loginUser, loginAdmin, getAllUsers, getUser, deleteUser, updateUser, unBlockUser, blockUser, refreshToken, logout, makeAdmin, makeUser, updatePassword, forgotPasswordToken, resetPassword, getWishList, saveAddress, addToCart, getUserCart, emptyCart, emptyCart, applyCoupon}
