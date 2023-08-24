@@ -448,7 +448,7 @@ const createOrder = asyncHandler(async(req, res) => {
         created: Date.now(),
         currency: "usd"
       },
-      orderby: user._id,
+      orderBy: user._id,
       orderStatus: "Cash on Delivery"
     }).save();
     let update = userCart.products.map( (item)=> {
@@ -486,7 +486,7 @@ const getOrderByUserId = asyncHandler(async (req, res) => {
   try {
     const userOrders = await Order.findOne({ orderBy: id })
       .populate("products.product")
-      .populate("orderby")
+      .populate("orderBy", "firstName lastName email address ")
       .exec();
       console.log(userOrders)
     res.json(userOrders);
