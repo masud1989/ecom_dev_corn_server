@@ -1,59 +1,56 @@
-const Color = require('../model/colorModel');
+const Enquiry = require('../model/equiryModel');
 const asyncHandler = require('express-async-handler');
 const validateMongoDbId = require('../utils/validateMongoDBId');
 
-const createColor = asyncHandler( async(req, res) => {
+const createEnquiry = asyncHandler( async(req, res) => {
     const postBody = req.body
     try {
-        const newColor = await Color.create(postBody)
-        res.json({status: 'success', message: 'Color Created', data: newColor})
+        const newEnquiry = await Enquiry.create(postBody)
+        res.json({status: 'success', message: 'Enquiry Created', data: newEnquiry})
     } catch (error) {
         throw new Error(error)
     }
 });
 
-const updateColor = asyncHandler( async(req, res) => {
+const updateEnquiry = asyncHandler( async(req, res) => {
     const postBody = req.body
     const id = req.params.id
     try {
-        const updatedColor = await Color.findByIdAndUpdate(id, postBody, {new: true})
-        res.json({status: 'success', message: 'Color Updated', data: updatedColor})
+        const updatedEnquiry = await Enquiry.findByIdAndUpdate(id, postBody, {new: true})
+        res.json({status: 'success', message: 'Enquiry Updated', data: updatedEnquiry})
     } catch (error) {
         throw new Error(error)
     }
 });
 
-const deleteColor = asyncHandler( async(req, res) => {
+const deleteEnquiry = asyncHandler( async(req, res) => {
     const id = req.params.id
     try {
-        const deletedColor = await Color.findByIdAndDelete(id)
-        res.json({status: 'success', message: 'Product Deleted', data: deletedColor})
+        const deletedEnquiry = await Enquiry.findByIdAndDelete(id)
+        res.json({status: 'success', message: 'Enquiry Deleted', data: deletedEnquiry})
     } catch (error) {
         throw new Error(error)
     }
 });
 
-const getColor = asyncHandler(async (req, res) => {
+const getEnquiry = asyncHandler(async (req, res) => {
     const  id  = req.params.id;
     validateMongoDbId(id);
     try {
-      const color = await Color.findById(id);
-      res.json(color);
+      const enquiry = await Enquiry.findById(id);
+      res.json(enquiry);
     } catch (error) {
       throw new Error(error);
     }
 });
 
-  const getAllColor = asyncHandler(async (req, res) => {
+  const getAllEnquiry = asyncHandler(async (req, res) => {
     try {
-      const getAllColors = await Color.find();
-      res.json({total: getAllColors.length, getAllColors});
+      const getAllEnquirys = await Enquiry.find();
+      res.json({total: getAllEnquirys.length, getAllEnquirys});
     } catch (error) {
       throw new Error(error);
     }
 });
 
-
-
-
-module.exports = {createColor, updateColor, deleteColor, getColor, getAllColor}
+module.exports = {createEnquiry, updateEnquiry, deleteEnquiry, getEnquiry, getAllEnquiry}
