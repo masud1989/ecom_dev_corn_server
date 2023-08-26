@@ -34,7 +34,7 @@ var blogSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    dislikes: [
+    disLikes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -43,7 +43,7 @@ var blogSchema = new mongoose.Schema(
 
     author: {
       type: String,
-      default: "Admin",
+      default: "admin",
     },
     
   },
